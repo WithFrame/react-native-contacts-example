@@ -8,6 +8,8 @@ import {
   ScrollView,
   Image,
   ActivityIndicator,
+  PermissionsAndroid,
+  Platform,
 } from 'react-native';
 import FeatherIcon from 'react-native-vector-icons/Feather';
 import Contacts from 'react-native-contacts';
@@ -17,7 +19,19 @@ export default function Example() {
     null,
   );
   React.useEffect(() => {
-    Contacts.getAll().then(setContacts);
+    if (Platform.OS === 'android') {
+      PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.READ_CONTACTS, {
+        title: 'Contacts',
+        message: 'ContactsList app would like to access your contacts.',
+        buttonPositive: 'Accept',
+      }).then(value => {
+        if (value === 'granted') {
+          Contacts.getAll().then(setContacts);
+        }
+      });
+    } else {
+      Contacts.getAll().then(setContacts);
+    }
   }, []);
 
   const sections = React.useMemo(() => {
